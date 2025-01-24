@@ -1,0 +1,24 @@
+,pair_race,percent_decay
+1,African-American and African-American,0.554216867
+2,African-American and Asian-American,0.479166667
+3,African-American and Foreign Student,0.653846154
+4,African-American and Latino/a,0.629213483
+5,African-American and White,0.684615385
+6,Asian-American and Asian-American,0.547169811
+7,Asian-American and Foreign Student,0.59375
+8,Asian-American and Latino/a,0.505747126
+9,Asian-American and White,0.55666004
+10,Foreign Student and Foreign Student,0.652173913
+11,Foreign Student and Latino/a,0.617021277
+12,Foreign Student and White,0.703296703
+13,Latino/a and Latino/a,0.542857143
+14,Latino/a and White,0.617176128
+15,White and White,0.557792992
+,,
+,Mean Percent Tie Decay ,0.592980246
+,,
+,Race Pair w/ Highest Tie Decay %,
+,Foreign Student and White,0.703296703
+,,
+,Race Pair w/ Lowest Tie Formation %,
+,African-American and Asian-American,0.479166667

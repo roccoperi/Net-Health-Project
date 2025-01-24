@@ -1,0 +1,279 @@
+---
+title: "Homophily, Tie Formation, and Tie Decay Based on Race at ND - Preliminary Data"
+author: "Rocco Peri"
+format: 
+  revealjs: 
+   embed-resources: true
+   theme: serif
+editor: visual
+---
+
+## Inspiration
+
+-   Racial Dynamics at ND (PWI but same-race friendgroups)
+
+-   Existence of Same-Race Social Foci (FASO, AAA, BSA, VSA, etc.)
+
+-   Data sets than can allow for the study of race interactions/ties at ND (NetHealth)
+
+## Data and Methods Used
+
+-   NetHealth Data (Wave 3 and Wave 5 representing Spring 2016 and Spring 2017)
+
+-   Dyad datasets compiled by Ethan measuring tie decay and formation between the two waves
+
+-   Tidyverse functions (select, mutate, filter, etc.) to manipulate the network data
+
+-   Generalized Linear Models function to obtain regression coefficients & percent change for tie decay and formation
+
+# Preliminary Data
+
+## Average Summary Statistics per Race
+
+```{r}
+#| label: Filtering by Race
+#| eval: FALSE
+#| echo: TRUE
+
+traits_df <- read.csv(here("ego_stats_sp16 - ego_stats_sp16.csv"))
+
+white_df <- traits_df |>
+  filter(race == "White")
+latino_df <- traits_df |>
+  filter(race == "Latino/a")
+asian_df <- traits_df |>
+  filter(race == "Asian-American")
+african_df <- traits_df |>
+  filter(race == "African-American")
+foreign_df <- traits_df |>
+  filter(race == "Foreign Student")
+```
+
+## Average Summary Statistics per Race
+
+```{r}
+#| label: Summary Stat Generation
+#| eval: FALSE
+#| echo: TRUE
+
+mean(white_df$egonet_clustering, na.rm = TRUE)
+mean(latino_df$egonet_clustering, na.rm = TRUE)
+mean(asian_df$egonet_clustering, na.rm = TRUE)
+mean(african_df$egonet_clustering, na.rm = TRUE)
+mean(foreign_df$egonet_clustering, na.rm = TRUE)
+
+```
+
+I did this above code for egonet clustering coefficient, egonet diversity iqv, and network size, over the two waves, and took the differential between the two years to get the change of these statistics overtime.
+
+## Average Summary Statistics per Race
+
+![](Data%20for%20Analysis.png){fig-align="center"}
+
+# Tie Decay
+
+## Average Tie Decay of Same Race and Race Pair Ties
+
+I used Ethan's compiled data set to obtain decay data of the ties in the waves
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(here)
+
+setwd("C:/Users/rocco/OneDrive/Desktop/R Coding Related/Social Networks/Final Project/Net Health Spring 2016")
+
+dyad_data <- read_csv("Dyads 2016 Presentation.csv")
+dyad_data
+```
+
+## Average Tie Decay of Same Race and Race Pair Ties
+
+Then, I used this to obtain the average tie decay for same race and the different race pair ties.
+
+```{r}
+#| label: Average Decay 
+#| eval: FALSE
+#| echo: TRUE
+
+decay_rates_pair_race <- dyads_2016 |> 
+  group_by(pair_race) |>
+  summarize(percent_decay = mean(decay))
+
+decay_rates_same_race <- dyads_2016 |> 
+  group_by(same_race) |>
+  summarize(percent_decay = mean(decay))
+```
+
+## Average Tie Decay of Race Pair Ties
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(here)
+
+setwd("C:/Users/rocco/OneDrive/Desktop/R Coding Related/Social Networks/Final Project/Net Health Spring 2016")
+
+dyad_decay_pair <- read_csv("Tie Decay Rates based on Race Pairs.csv")
+
+dyad_decay_pair
+```
+
+## Average Tie Decay of Same Race Ties
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(here)
+
+setwd("C:/Users/rocco/OneDrive/Desktop/R Coding Related/Social Networks/Final Project/Net Health Spring 2016")
+
+dyad_decay_same <- read_csv("Tie Decay Rates based on Same Race Pairs.csv")
+
+dyad_decay_same
+```
+
+## Tie Decay Regressions for Same Race and Race Pairs
+
+I ran a logistic regression on tie decay likelihood with "same_race" and "race_pair" as a predictor, controlling for gender, first generation student, clustering coefficient, and egonet size using the glm function with White - White as the reference. The output is the coefficients in log likelihood, so I had to convert the coefficients to % change for interpretative purposes.
+
+## Tie Decay Regressions for Same Race and Race Pairs
+
+```{r}
+#| label: Decay Regressions 
+#| eval: FALSE
+#| echo: TRUE
+
+#Combining the dyad data with the egonet stats data
+sp16_dyads <- sp16_dyads |>
+  mutate(pair_race = relevel(as.factor(pair_race), ref = "White and White"))
+
+sp16_final_df <- sp16_dyads |>
+  left_join(traits_df, by = "from")
+
+#Logistic regression on tie decay likelihood with "same_race" as predictor controlling 
+#for gender, first generation student, clustering coefficient, and egonet size
+decay_same_race <- glm(decay ~ same_race + male + firstgen + egonet_clustering + egonet_size,
+                data = sp16_final_df, family = binomial())
+
+#Getting the data out of log likelihood into %
+(exp(coef(decay_same_race)) - 1) * 100
+summary(decay_same_race)
+
+```
+
+## Tie Decay Regressions for Same Race
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(here)
+
+setwd("C:/Users/rocco/OneDrive/Desktop/R Coding Related/Social Networks/Final Project/Net Health Spring 2016")
+
+reg_decay_same <- read_csv("Logistic Regresssion Results Tie Decay Same Race.csv")
+
+reg_decay_same
+```
+
+Interpretation: Controlling for gender, first generation student, clustering coefficient, and egonet size, When same race = TRUE, ties are \~ 15% less likely to decay with a p-value of less than .01, meaning that the coefficient is statistically significant.
+
+## Tie Decay Regressions for Race Pairs
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(here)
+
+setwd("C:/Users/rocco/OneDrive/Desktop/R Coding Related/Social Networks/Final Project/Net Health Spring 2016")
+
+reg_decay_pair <- read_csv("Logistic Regresssion Results Tie Decay Race Pairs.csv")
+
+reg_decay_pair
+```
+
+## Tie Decay Regressions for Race Pairs
+
+Interpretation: Compared to White - White ties, African American - White ties are about \~ 63% more likely to decay, controlling for gender, first generation student, clustering coefficient, and egonet size.
+
+# Tie Formation
+
+## Average Tie Formation
+
+I used the same process as above but instead used the wave 5 formation data. The formation data is made from all of the potential formations from the egos and the actual formations. (1874/218747)
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(here)
+
+setwd("C:/Users/rocco/OneDrive/Desktop/R Coding Related/Social Networks/Final Project/Net Health Spring 2016")
+
+dyad_2017 <- read_csv("2017 Dyad Presentation.csv")
+
+head(dyad_2017)
+```
+
+## Average Tie Formation of Race Pair Ties
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(here)
+
+setwd("C:/Users/rocco/OneDrive/Desktop/R Coding Related/Social Networks/Final Project/Net Health Spring 2016")
+
+mean_formation_pair <- read_csv("Tie Formation Rates based on Race Pairs.csv")
+
+mean_formation_pair
+```
+
+## Average Tie Formation of Same Race Ties
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(here)
+
+setwd("C:/Users/rocco/OneDrive/Desktop/R Coding Related/Social Networks/Final Project/Net Health Spring 2016")
+
+mean_formation_same <- read_csv("Tie Formation Rates based on Same Race Pairs.csv")
+
+mean_formation_same
+```
+
+## Tie Formation Regressions for Same Race Pairs
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(here)
+
+setwd("C:/Users/rocco/OneDrive/Desktop/R Coding Related/Social Networks/Final Project/Net Health Spring 2016")
+
+reg_formation_same <- read_csv("Logistic Regresssion Results Tie Formation Same Race Pairs.csv")
+
+reg_formation_same
+```
+
+Interpretation: Interpretation: Controlling for gender, first generation student, clustering coefficient, and egonet size, When same race = TRUE, ties are \~ 18% more likely to form throughout the year with a p-value of about 0, meaning that the coefficient is statistically significant.
+
+## Tie Formation Regressions for Race Pairs
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(here)
+
+setwd("C:/Users/rocco/OneDrive/Desktop/R Coding Related/Social Networks/Final Project/Net Health Spring 2016")
+
+reg_formation_pair <- read_csv("Logistic Regresssion Results Tie Formation Race Pairs.csv")
+
+reg_formation_pair
+```
+
+## Tie Formation Regressions for Race Pairs
+
+Interpretation: Compared to White - White ties, African American - African American ties are about \~ 193% more likely to form throughout the year, controlling for gender, first generation student, clustering coefficient, and egonet size.
+
+# Questions?

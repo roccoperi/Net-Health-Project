@@ -1,0 +1,15 @@
+,pair,percentage_change,significance_of_coefs,p_value
+1,African-American and African-American,-19.1501389,,>.1
+2,African-American and Asian-American,-36.217933,,>.1
+3,African-American and Foreign Student,19.2778152,,>.1
+4,African-American and Latino/a,15.2499196,,>.1
+5,African-American and White,63.1412875,***,<.001
+6,Asian-American and Asian-American,-10.701906,,>.1
+7,Asian-American and Foreign Student,-16.0900425,,>.1
+8,Asian-American and Latino/a,-22.9741776,,>.1
+9,Asian-American and White,-3.0032655,,>.1
+10,Foreign Student and Foreign Student,50.9573109,,>.1
+11,Foreign Student and Latino/a,2.2495639,,>.1
+12,Foreign Student and White,68.3873551,**,<.01
+13,Latino/a and Latino/a,-8.6458636,,>.1
+14,Latino/a and White,21.1377519,*,<.05

@@ -1,0 +1,6 @@
+,variable,percentage_change,significance_of_coefs,p_value
+1,Same Race = TRUE,18.250577,***,<.001
+2,Male,-2.932507,***,<.001
+3,First Generation,14.425654,,>.1
+4,Egonet_Clustering,-60.3093,,>.1
+5,Degree,6.887709,***,<.001
